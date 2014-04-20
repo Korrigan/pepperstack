@@ -14,5 +14,7 @@ def cli(cmd, *args, **kwargs):
 
     """
     c = get_command(cmd)
+    if not c:
+        return False
     return c(*args, **kwargs)
 
