@@ -20,17 +20,21 @@ def _build_cmd_list_r(obj, base_key):
         return [(base_key, obj.description)]
 
 
-def command_list_help():
+def command_list_help(in_help_text=True):
     """
     Returns a string describing each command and his short help
 
     """
     from . import get_command_dict
 
-    help_text = "Available commands:\n"
+    if in_help_text:
+        help_text = "available commands:"
+    else:
+        help_text = title("Available commands:") + '\n'
     for k, v in get_command_dict().items():
         for c, d in _build_cmd_list_r(v, k):
             help_text += '  {0: <12}{1}\n'.format(c, d)
+        help_text += '\n'
     return help_text
 
 
@@ -51,7 +55,7 @@ class help_command:
         from . import get_command
 
         if not cmd:
-            print command_list_help()
+            print command_list_help(in_help_text=False)
         else:
             c = get_command(cmd)
             if not c:

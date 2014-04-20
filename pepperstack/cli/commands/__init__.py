@@ -9,8 +9,10 @@ commands
 from .host import host_list
 from .host import host_show
 
-from .help import help_command
+from .role import role_list
+from .role import role_show
 
+from .help import help_command
 
 
 __commands__ = {
@@ -20,7 +22,8 @@ __commands__ = {
         'show': host_show(),
         },
     'role': {
-        
+        'list': role_list(),
+        'show': role_show(),
         },
     }
 
