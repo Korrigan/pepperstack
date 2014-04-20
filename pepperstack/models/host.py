@@ -3,57 +3,28 @@ Interface to the host collection
 
 """
 
-from pepperstack.utils import db
 from pepperstack.utils import cred
 
+from .mixins import ModelMixin
 from .role import Role
 
 
-class Host:
+class Host(ModelMixin):
     """
-    Represents an host
+    Represents an host mongo document
 
     """
     MONGO_COLLECTION = 'hosts'
-    mappings = {
-        '_id': 'id',
+    defaults = {
+        'roles': [],
+        'credentials': [],
         }
-
-
-    @classmethod
-    def find(cls, name):
-        """
-        Find host info and return a class instance
-        
-        """
-        collection = db.get_connection()[cls.MONGO_COLLECTION]
-        data = collection.find_one({'name': name})
-        if data:
-            return cls(data)
-        else:
-            return None
-
-
-    @classmethod
-    def find_all(cls):
-        """
-        Return a list of Host objects
-        
-        """
-        hosts = []
-        collection = db.get_connection()[cls.MONGO_COLLECTION]
-        for h in collection.find():
-            hosts.append(cls(h))
-        return hosts
 
 
     @property
     def name(self):
         return self.info['name']
 
-    @property
-    def id(self):
-        return str(self.info['_id'])
 
     @property
     def roles(self):
@@ -63,47 +34,16 @@ class Host:
             ]
 
 
-    def __init__(self, info):
-        """
-        Simple constructor to construct a Host object
-        
-        """
-        self.info = info
-
-
-    def as_dict(self):
-        """
-        Return self as a cleaned dict ready to print
-
-        """
-        d = self.info.copy()
-        for k, v in d.items():
-            new_k = k
-            if self.mappings.has_key(k):
-                new_k = self.mappings[k]
-                d[new_k] = d.pop(k)
-            if hasattr(self, new_k):
-                d[new_k] = getattr(self, new_k)
-        return d
-
-
-    def update(self):
-        """
-        Updates the mongo database from data contained in this object
-
-        """
-        collection = db.get_connection()[cls.MONGO_COLLECTION]
-        collection.update({'_id': self.id}, self.info)
-
-
     def add_role(self, role_name, update=True):
         """
-        Adds a role to a host
+        Adds a role to host
+
+        The `update` argument defines if the mongo collection shoud be updated
         
         """
         r = role.find(role_name)
         if not r:
-            return
+            return False
         role_data = {
             'id': r.id,
             'name': r.name,
@@ -116,15 +56,40 @@ class Host:
             self.generate_credential(c, update=False)
         if update:
             self.update()
+        return True
+
+
+    def del_role(self, role_name, update=True):
+        """
+        Deletes a role named `role_name` from host.
+        Returns True if role has been deleted, False else.
+
+        The `update` argument defines if the mongo collection shoud be updated
+
+        """
+        roles = []
+        deleted = False
+        if self.info.has_key('roles'):
+            for r in self.info['roles']:
+                if r.get('name', None) == role_name:
+                    deleted = True
+                else:
+                    roles.append(r)
+            self.info['roles'] = roles
+        if update:
+            self.update()
+        return deleted
 
 
     def generate_credentials(self, credential=None, update=True):
         """
-        Regenerate credentials `credential` for `host`.
-        If `credential` is None, regenerate all hosts credentials.
+        Regenerate credentials `credential` for this host
+        If `credential` is None, regenerate all this host's credentials.
         If `credential` does not exists, it is created
 
         Please note that old credential will not be recoverable.
+
+        The `update` argument defines if the mongo collection shoud be updated
         
         """
         if credential:
@@ -134,3 +99,18 @@ class Host:
                 self.info['credentials'][c] = cred.random_password()
         if update:
             self.update()
+
+
+    def del_credential(self, credential, update=True):
+        """
+        Delete a credential named `credential` for this host.
+        Returns True if the credential has been deleted, False else.
+
+        The `update` argument defines if the mongo collection shoud be updated
+        
+        """
+        c =  self.info.get('credentials', {})
+        if c.has_key(credential):
+            del self.info['credentials'][credential]
+            return True
+        return False
