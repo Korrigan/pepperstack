@@ -8,14 +8,39 @@ import sys
 
 from .cli import cli
 
-if __name__ == "__main__":
+def usage(exit=1):
+    """
+    Prints a brief usage on stdout and exit
+
+    """
+    print "Usage: pepper <command> [arg[=value], ...]"
+    print ""
+    print "Run `pepper help` for more info"
+    sys.exit(exit)
+
+
+def main():
+    """
+    Main function for pepperstack
+
+    """
     args = []
     kwargs = {}
-    sys.argv.pop(0)
-    for a in sys.argv:
-        if a.find('='):
-            (k, v) = a.split('=')
+    cmd = sys.argv.pop(0)
+    for arg in sys.argv:
+        if arg.find('=') != -1:
+            (k, v) = arg.split('=', 1)
             kwargs[k] = v
         else:
-            args.append(a)
-    print "Args: {0}\nKwargs: {1}".format(args, kwargs)
+            args.append(arg)
+    if cli(cmd, *args, **kwargs):
+        sys.exit(0)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        usage()
+    sys.argv.pop(0)
+    main()
+        
