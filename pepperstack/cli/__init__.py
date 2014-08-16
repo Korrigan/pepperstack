@@ -16,5 +16,10 @@ def cli(cmd, *args, **kwargs):
     c = get_command(cmd)
     if not c:
         return False
-    return c(*args, **kwargs)
-
+    try:
+        c(*args, **kwargs)
+    except Exception as e:
+        print "Error: {0}".format(e)
+        return False
+    else:
+        return True

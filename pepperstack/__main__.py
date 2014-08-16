@@ -43,4 +43,3 @@ if __name__ == "__main__":
         usage()
     sys.argv.pop(0)
     main()
-        
