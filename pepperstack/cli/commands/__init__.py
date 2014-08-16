@@ -5,6 +5,7 @@ Provide few utilities functions and a dictionary containing all
 commands
 
 """
+import collections
 
 from .host import host_list
 from .host import host_show
@@ -15,7 +16,6 @@ from .role import role_create
 from .role import role_delete
 
 from .help import help_command
-import collections
 
 
 __commands__ = {
