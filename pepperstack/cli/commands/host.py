@@ -17,9 +17,9 @@ class host_list:
     help_text = ""
 
     def __call__(self, **filters):
-        print title("Hosts:")
+        print(title("Hosts:"))
         for h in Host.filter(**filters):
-            print " - {0}".format(h.name)
+            print(" - {0}".format(h.name))
         return True
 
 
@@ -35,6 +35,6 @@ class host_show:
         h = Host.find(name)
         if not h:
             return False
-        print title(h.name + ':')
+        print(title(h.name + ':'))
         pretty_print(h.as_dict())
         return True

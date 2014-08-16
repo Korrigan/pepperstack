@@ -15,6 +15,7 @@ from .role import role_create
 from .role import role_delete
 
 from .help import help_command
+import collections
 
 
 __commands__ = {
@@ -47,12 +48,12 @@ def get_command(cmd):
     """
     c = get_command_dict()
     for sub in cmd.split('.'):
-        if not c.has_key(sub):
-            print "No such command '{0}'".format(cmd)
+        if sub not in c:
+            print("No such command '{0}'".format(cmd))
             return None
         c = c[sub]
-    if not callable(c):
-        print "Command '{0}' is not a valid command".format(cmd)
+    if not isinstance(c, collections.Callable):
+        print("Command '{0}' is not a valid command".format(cmd))
         return None
     return c
 

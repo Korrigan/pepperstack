@@ -17,9 +17,9 @@ class role_list:
     help_text = ""
 
     def __call__(self, **filters):
-        print title("Roles:")
+        print(title("Roles:"))
         for r in Role.filter(**filters):
-            print " - {0}".format(r.name)
+            print(" - {0}".format(r.name))
 
 
 class role_show:
@@ -35,7 +35,7 @@ class role_show:
         if not r:
             raise DoesNotExistsException("Role {0} does not exists in database"
                                          .format(name))
-        print title(r.name + ':')
+        print(title(r.name + ':'))
         pretty_print(r.as_dict())
 
 
@@ -69,4 +69,4 @@ class role_delete:
             raise DoesNotExistsException("Role {0} does not exists in database"
                                          .format(name))
         r.delete()
-        print "Role {0} deleted".format(name)
+        print("Role {0} deleted".format(name))

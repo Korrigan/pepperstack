@@ -38,7 +38,7 @@ def pretty_print(obj, indent=DEFAULT_INDENT):
             for e in obj:
                 string += _pprint(e, cur_indent + indent, prefix='- ')
         elif isinstance(obj, dict):
-            for k, v in obj.items():
+            for k, v in list(obj.items()):
                 v_string = ""
                 if isinstance(v, dict) or isinstance(v, list):
                     v_string = '\n' + _pprint(v, cur_indent + indent, prefix=indent * ' ')
@@ -48,5 +48,5 @@ def pretty_print(obj, indent=DEFAULT_INDENT):
         else:
             string += ' ' * (cur_indent - len(prefix)) + prefix + str(obj) + '\n'
         return string
-    print _pprint(obj, 0)
+    print(_pprint(obj, 0))
     

@@ -6,6 +6,7 @@ Developped for Quanta internal uses
 """
 
 import logging
+import collections
 
 try:
     import pymongo
@@ -45,8 +46,8 @@ def _merge_dict(*args):
     '''
     res = {}
     for d in args:
-        for k, v in d.iteritems():
-            if not res.has_key(k):
+        for k, v in d.items():
+            if k not in res:
                 res[k] = v
             elif isinstance(res[k], dict) and isinstance(v, dict):
                 res[k] = _merge_dict(res[k], v)
@@ -108,9 +109,9 @@ def _map_attribute(attr, value, mappings=_default_attr_mappings):
       - Else, the dictionary {`mappings[attr]`: `value`} is returned
 
     '''
-    if not mappings.has_key(attr):
+    if attr not in mappings:
         return {attr: value}
-    elif callable(mappings[attr]):
+    elif isinstance(mappings[attr], collections.Callable):
         return mappings[attr](value)
     else:
         return {mappings[attr]: value}
@@ -123,7 +124,7 @@ def _map_dict(d, mappings=_default_attr_mappings):
     
     '''
     mapped = d.copy()
-    for k, v in mapped.items():
+    for k, v in list(mapped.items()):
         del mapped[k]
         mapped.update(_map_attribute(k, v, mappings))
     return mapped
@@ -137,9 +138,9 @@ def _get_roles_pillar(host_collection, role_collection):
     '''
     role_key_fmt = '{0}_servers'
     roles = {r['name']:r for r in role_collection.find()}
-    roles_mapping = {name:[] for name,r in roles.items()}
+    roles_mapping = {name:[] for name,r in list(roles.items())}
     roles_pillar = {
-        'available': [name for name,r in roles.items()]
+        'available': [name for name,r in list(roles.items())]
         }
 
     def _get_inherited_roles(name, role_list):
@@ -148,7 +149,7 @@ def _get_roles_pillar(host_collection, role_collection):
         Uses a dynamic algorithm for faster resolution
         
         '''
-        if not role_list.has_key(name):
+        if name not in role_list:
             return []
         if roles_mapping[name]:
             return roles_mapping[names]
@@ -164,7 +165,7 @@ def _get_roles_pillar(host_collection, role_collection):
         for r in h.get('roles', []):
             for inh_r in _get_inherited_roles(r['name'], roles):
                 k = role_key_fmt.format(inh_r)
-                if not roles_pillar.has_key(k):
+                if k not in roles_pillar:
                     roles_pillar[k] = []
                 roles_pillar[k].append(h['name'])
     return {'roles': roles_pillar}

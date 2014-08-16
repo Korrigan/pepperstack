@@ -13,9 +13,9 @@ def usage(exit=1):
     Prints a brief usage on stdout and exit
 
     """
-    print "Usage: pepper <command> [arg[=value], ...]"
-    print ""
-    print "Run `pepper help` for more info"
+    print("Usage: pepper <command> [arg[=value], ...]")
+    print("")
+    print("Run `pepper help` for more info")
     sys.exit(exit)
 
 

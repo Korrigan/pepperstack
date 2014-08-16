@@ -3,6 +3,9 @@ Module containing mixins for models class
 
 """
 
+from pepperstack.utils.exceptions import DoesNotExistsException, DuplicateException
+
+
 class ModelMixin(object):
     """
     A simple module providing few helper methods for mongo collections
@@ -96,7 +99,7 @@ class ModelMixin(object):
         Returns the object id from the standard _id row
 
         """
-        if not self.info.has_key('_id'):
+        if '_id' not in self.info:
             return None
         return str(self.info['_id'])
 
@@ -143,9 +146,9 @@ class ModelMixin(object):
         """
         mappings = self.get_attr_mappings()
         d = self.info.copy()
-        for k, v in d.items():
+        for k, v in list(d.items()):
             new_k = k
-            if mappings.has_key(k):
+            if k in mappings:
                 new_k = mappings[k]
                 d[new_k] = d.pop(k)
             if hasattr(self, new_k):

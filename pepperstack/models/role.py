@@ -27,7 +27,7 @@ class Role(ModelMixin):
     def inherits(self):
         return [
             r['name'] for f in self.info.get('inherits', [])
-            if r.has_key('name')
+            if 'name' in r
             ]
 
 
@@ -45,7 +45,7 @@ class Role(ModelMixin):
             'id': r.id,
             'name': r.name,
             }
-        if not self.info.has_key('inherits'):
+        if 'inherits' not in self.info:
             self.info['inherits'] = [role_data]
         else:
             self.info['inherits'].append(role_data)
@@ -63,7 +63,7 @@ class Role(ModelMixin):
         """
         inherits = []
         deleted = False
-        if self.info.has_key('inherits'):
+        if 'inherits' in self.info:
             for r in self.info['inherits']:
                 if r.get('name', None) == role_name:
                     deleted = True

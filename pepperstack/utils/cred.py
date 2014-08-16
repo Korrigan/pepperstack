@@ -7,7 +7,7 @@ import os
 import string
 
 DEFAULT_PASSWORD_LENGTH = 12
-ALLOWED_PASSWORD_CHARS = string.letters + string.digits + string.punctuation
+ALLOWED_PASSWORD_CHARS = string.ascii_letters + string.digits + string.punctuation
 
 def random_password(length=DEFAULT_PASSWORD_LENGTH):
     """

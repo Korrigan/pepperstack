@@ -4,6 +4,7 @@ This module contains help commands for pepperstack
 """
 
 from pepperstack.cli.format import title
+import collections
 
 
 def _build_cmd_list_r(obj, base_key):
@@ -13,10 +14,10 @@ def _build_cmd_list_r(obj, base_key):
     """
     if isinstance(obj, dict):
         cmds = []
-        for k, v in obj.items():
+        for k, v in list(obj.items()):
             cmds += _build_cmd_list_r(v, '{0}.{1}'.format(base_key, k))
         return cmds
-    elif callable(obj):
+    elif isinstance(obj, collections.Callable):
         return [(base_key, obj.description)]
 
 
@@ -31,7 +32,7 @@ def command_list_help(in_help_text=True):
         help_text = "available commands:"
     else:
         help_text = title("Available commands:") + '\n'
-    for k, v in get_command_dict().items():
+    for k, v in list(get_command_dict().items()):
         for c, d in _build_cmd_list_r(v, k):
             help_text += '  {0: <12}{1}\n'.format(c, d)
         help_text += '\n'
@@ -55,12 +56,12 @@ class help_command:
         from . import get_command
 
         if not cmd:
-            print command_list_help(in_help_text=False)
+            print(command_list_help(in_help_text=False))
         else:
             c = get_command(cmd)
             if not c:
                 return False
             t = "Command '{0}' help:".format(cmd)
-            print title(t)
-            print c.help_text.format(command=cmd)
+            print(title(t))
+            print(c.help_text.format(command=cmd))
         return True

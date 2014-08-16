@@ -19,7 +19,7 @@ def cli(cmd, *args, **kwargs):
     try:
         c(*args, **kwargs)
     except Exception as e:
-        print "Error: {0}".format(e)
+        print("Error: {0}".format(e))
         return False
     else:
         return True

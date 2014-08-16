@@ -30,7 +30,7 @@ class Host(ModelMixin):
     def roles(self):
         return [
             r['name'] for r in self.info.get('roles', [])
-            if r.has_key('name')
+            if 'name' in r
             ]
 
 
@@ -48,7 +48,7 @@ class Host(ModelMixin):
             'id': r.id,
             'name': r.name,
             }
-        if not self.info.has_key('roles'):
+        if 'roles' not in self.info:
             self.info['roles'] = [role_data]
         else:
             self.info['roles'].append(role_data)
@@ -69,7 +69,7 @@ class Host(ModelMixin):
         """
         roles = []
         deleted = False
-        if self.info.has_key('roles'):
+        if 'roles' in self.info:
             for r in self.info['roles']:
                 if r.get('name', None) == role_name:
                     deleted = True
@@ -95,7 +95,7 @@ class Host(ModelMixin):
         if credential:
             self.info['credentials'][credential] = cred.random_password()
         else:
-            for c,v in self.info.get('credentials', {}).items():
+            for c,v in list(self.info.get('credentials', {}).items()):
                 self.info['credentials'][c] = cred.random_password()
         if update:
             self.update()
@@ -110,7 +110,7 @@ class Host(ModelMixin):
         
         """
         c =  self.info.get('credentials', {})
-        if c.has_key(credential):
+        if credential in c:
             del self.info['credentials'][credential]
             return True
         return False
