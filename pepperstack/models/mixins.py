@@ -80,6 +80,9 @@ class ModelMixin(object):
         collection = cls.get_collection()
         if not collection:
             return None
+        if cls.find(value, attr=attr):
+            raise DuplicateException("{0} already exists in database"
+                                     .format(value))
         info = cls.get_defaults()
         info.update(data)
         info[attr] = value
@@ -156,7 +159,7 @@ class ModelMixin(object):
 
         """
         collection = self.get_collection()
-        collection.update({'_id': self.id}, self.info)
+        collection.update({'_id': self.info['_id']}, self.info)
 
 
     def delete(self):
@@ -165,5 +168,5 @@ class ModelMixin(object):
 
         """
         collection = self.get_collection()
-        collection.remove({'_id': self.id})
+        collection.remove({'_id': self.info['_id']})
         del self.info['_id']
