@@ -60,7 +60,7 @@ class help_command:
             c = get_command(cmd)
             if not c:
                 return False
-            title = "Command '{0}' help:".format(cmd)
-            print title(title)
+            t = "Command '{0}' help:".format(cmd)
+            print title(t)
             print c.help_text.format(command=cmd)
         return True
