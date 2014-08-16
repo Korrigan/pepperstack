@@ -8,6 +8,7 @@ import sys
 
 from .cli import cli
 
+
 def usage(exit=1):
     """
     Prints a brief usage on stdout and exit
@@ -33,9 +34,13 @@ def main():
             kwargs[k] = v
         else:
             args.append(arg)
-    if cli(cmd, *args, **kwargs):
+    try:
+        ret = cli(cmd, *args, **kwargs):
+    except Exception as e:
+        print("Error: {0}".format(e))
+        sys.exit(1)
+    else:
         sys.exit(0)
-    sys.exit(1)
 
 
 if __name__ == "__main__":
