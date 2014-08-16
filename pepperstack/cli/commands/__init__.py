@@ -11,6 +11,8 @@ from .host import host_show
 
 from .role import role_list
 from .role import role_show
+from .role import role_create
+from .role import role_delete
 
 from .help import help_command
 
@@ -24,6 +26,8 @@ __commands__ = {
     'role': {
         'list': role_list(),
         'show': role_show(),
+        'create': role_create(),
+        'delete': role_delete(),
         },
     }
 
