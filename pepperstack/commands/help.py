@@ -3,8 +3,11 @@ This module contains help commands for pepperstack
 
 """
 
-from pepperstack.cli.format import title
 import collections
+
+from pepperstack.utils.format import title
+
+from .mixins import CommandMixin
 
 
 def _build_cmd_list_r(obj, base_key):
@@ -17,8 +20,8 @@ def _build_cmd_list_r(obj, base_key):
         for k, v in list(obj.items()):
             cmds += _build_cmd_list_r(v, '{0}.{1}'.format(base_key, k))
         return cmds
-    elif isinstance(obj, collections.Callable):
-        return [(base_key, obj.description)]
+    else:
+        return [(base_key, obj.get_description())]
 
 
 def command_list_help(in_help_text=True):
@@ -39,7 +42,7 @@ def command_list_help(in_help_text=True):
     return help_text
 
 
-class help_command:
+class help_command(CommandMixin):
     """
     Returns the detailed help for command `cmd`
 
@@ -55,13 +58,12 @@ class help_command:
     def __call__(self, cmd=None):
         from . import get_command
 
+        if not self.cli_mode:
+            return None
         if not cmd:
             print(command_list_help(in_help_text=False))
         else:
             c = get_command(cmd)
-            if not c:
-                return False
             t = "Command '{0}' help:".format(cmd)
             print(title(t))
-            print(c.help_text.format(command=cmd))
-        return True
+            print(c.get_help_text().format(command=cmd))

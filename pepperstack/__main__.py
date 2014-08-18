@@ -6,7 +6,7 @@ Calls pepperstack with formatted parameters
 
 import sys
 
-from .cli import cli
+from . import cli
 
 
 def usage(exit=1):
@@ -35,7 +35,7 @@ def main():
         else:
             args.append(arg)
     try:
-        ret = cli(cmd, *args, **kwargs):
+        cli(cmd, *args, **kwargs)
     except Exception as e:
         print("Error: {0}".format(e))
         sys.exit(1)
