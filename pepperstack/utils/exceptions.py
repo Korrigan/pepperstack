@@ -27,3 +27,10 @@ class DuplicateException(PepperstackException):
 
     """
     pass
+
+class CommandException(PepperstackException):
+    """
+    An exception class used to handle command errors
+
+    """
+    pass
