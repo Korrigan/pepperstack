@@ -165,6 +165,7 @@ class ModelMixin(object):
         collection.update({'_id': self.info['_id']}, self.info)
 
 
+
     def delete(self):
         """
         Deletes the current document in mongo collection
@@ -173,3 +174,132 @@ class ModelMixin(object):
         collection = self.get_collection()
         collection.remove({'_id': self.info['_id']})
         del self.info['_id']
+
+    def _key_apply(self, key_path, f, create_subkeys=False):
+        """
+        Finds the dict at the end of key_path in self.info and apply f to it
+        the following way):
+          f(dict, key)
+        with:
+        - dict: the recursively found dict
+        - key: the key to apply in this dict
+
+        If create_subkeys is True, sub-dictionaries will be created if missing
+
+        If key_path is a top-level key for self.info. self.get_attr_mappings()
+        will be used
+
+        """
+        mappings = self.get_attr_mappings()
+        subkeys = key_path.split('.')
+        if '.' not in key_path and key_path in mappings:
+            key = mappings[key_path]
+        else:
+            key = subkeys[-1]
+        attr = self.info
+        print("Debug: sub = {0}, key = {1}".format(subkeys[:-1], key))
+        for sub in subkeys[:-1]:
+            print("Debut: cur = {0}".format(sub))
+            if not sub in attr:
+                if create_subkeys:
+                    attr[sub] = {}
+                    attr = attr[sub]
+                else:
+                    raise KeyError("Cannot found {0} in object".format(key_path))
+            elif isinstance(attr[sub], dict):
+                attr = attr[sub]
+            else:
+                raise KeyError("Cannot found {0} in object".format(key_path))
+        return f(attr, key)
+
+
+    def add(self, key_path, *args, **kwargs):
+        """
+        Add data to self.info at the following key_path
+        Sub-dictionaries will be created if needed
+
+        If the attribute at key_path is a list, args are appened to it
+        If it's a scalar type, it is transformed into a list and args are appened
+        If it's a dict, it will be updated with kwargs
+        
+        If this attribute does not exists, it will be created as the following:
+        - If args is present and len(args) is 1, it will be filled with args[0]
+        - Else if args is present, it will be filled with args
+        - Else if kwargs is present, it will be a copy of it
+        - Else an exception is raised
+
+        """
+        def _add(attr, key):
+            err = ValueError("Noting to add at {0}".format(key_path))
+            if not key in attr:
+                if len(args) == 1:
+                    attr[key] = args[0]
+                elif len(args) > 1:
+                    attr[key] = list(args)
+                elif len(kwargs):
+                    attr[key] = kwargs.copy()
+                else:
+                    raise err
+            else:
+                if isinstance(attr[key], list):
+                    if not len(args):
+                        raise err
+                    attr[key].append(args)
+                elif isinstance(attr[key], dict):
+                    if not len(kwargs):
+                        raise err
+                    attr[key].update(kwargs)
+                else:
+                    if not len(args):
+                        raise err
+                    attr[key] = [attr[key]]
+                    attr[key].append(*args)
+
+        self._key_apply(key_path, _add, True)
+        self.update()
+
+
+    def remove(self, key_path):
+        """
+        Remove a dict from self.info at key_path and all its contents
+
+        """
+        def _remove(attr, key):
+            if key in attr:
+                return attr.pop(key)
+            else:
+                raise KeyError("Cannot found {0} in object".format(key_path))
+
+        ret = self._key_apply(key_path, _remove, False)
+        self.update()
+        return ret
+
+
+    def get(self, key_path, default=None):
+        """
+        Returns a copy of the data in self.info at key_path
+        If default is not None and the attribute is not found, default is
+        returned; else an exception is raised
+
+        """
+        def _get(attr, key):
+            if key in attr:
+                ret = attr[key]
+                if isinstance(ret, list):
+                    return list(ret)
+                elif isintance(ret, dict):
+                    return ret.copy()
+                else:
+                    return ret
+            else:
+                raise KeyError("Cannot found {0} in object".format(key_path))
+
+        try:
+            ret = self._key_apply(key_path, _get)
+        except KeyError as e:
+            if default is not None:
+                return default
+            else:
+                raise e
+        else:
+            return ret
