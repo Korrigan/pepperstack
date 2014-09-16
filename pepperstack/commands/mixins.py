@@ -27,6 +27,7 @@ class CommandMixin(object):
             self.help_text = help_text
 
 
+    @classmethod
     def get_description(self):
         """
         A little method if needed for advanced needs
@@ -34,7 +35,7 @@ class CommandMixin(object):
         """
         return self.description
 
-
+    @classmethod
     def get_help_text(self):
         """
         A little method if needed for advanced needs

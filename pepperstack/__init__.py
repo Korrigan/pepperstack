@@ -5,7 +5,7 @@ Pepperstack entry points
 from .commands import get_command
 
 
-def pepper(cmd, *args, kwargs):
+def pepper(cmd, *args, **kwargs):
     """
     Main interface for pepperstack
 
